@@ -12,11 +12,18 @@
     <h2>Your care profiles</h2>
     {% if rows %}
       <ul class="profile-list">
-        {% for membership, profile in rows %}
+        {% for membership, profile, stats in rows %}
           <li class="profile-item">
             <div>
               <div class="profile-name">{{ profile.name }}</div>
               <div class="muted">Your role on this profile: {{ membership.role }}</div>
+              <div class="adherence-row">
+                <span class="adherence-pill adherence-{{ 'good' if stats.percentage >= 80 else ('warn' if stats.percentage >= 50 else 'bad') }}">
+                  Last {{ stats.window_days }} days: <strong>{{ stats.percentage }}%</strong>
+                  ({{ stats.taken }}/{{ stats.total }})
+                </span>
+                <span class="streak-pill">🔥 Streak: {{ stats.streak }} day{{ '' if stats.streak == 1 else 's' }}</span>
+              </div>
             </div>
             <div class="profile-actions">
               <span class="badge badge-{{ membership.role }}">{{ membership.role }}</span>
