@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Today · {{ profile.name }}{% endblock %}
+{% block content %}
+  <section class="page-head">
+    <div>
+      <h1>Today's doses</h1>
+      <p class="muted">{{ profile.name }} · your role: <strong>{{ membership.role }}</strong></p>
+    </div>
+    <div class="head-actions">
+      <a class="btn btn-secondary" href="{{ url_for('medications.list_for_profile', profile_id=profile.id) }}">Medications</a>
+      <a class="btn btn-secondary" href="{{ url_for('profiles.dashboard') }}">Dashboard</a>
+    </div>
+  </section>
+
+  <section class="card">
+    {% if doses %}
+      <ul class="dose-list">
+        {% for dose in doses %}
+          <li class="dose-item dose-{{ dose.status }}">
+            <div>
+              <div class="dose-name">{{ dose.medication.name }} <span class="muted">· {{ dose.medication.dosage }}</span></div>
+              <div class="muted">
+                Scheduled {{ dose.scheduled_at.strftime("%H:%M") }} ·
+                status: <strong>{{ dose.status }}</strong>
+                {% if dose.taken_at %} · taken {{ dose.taken_at.strftime("%H:%M") }}{% endif %}
+              </div>
+            </div>
+            {% if can_mark and dose.status == "pending" %}
+              <form method="post" action="{{ url_for('medications.mark_taken', dose_id=dose.id) }}">
+                <button type="submit" class="btn btn-primary btn-take">I took it</button>
+              </form>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No doses scheduled for today. Add a medication to see them here.</p>
+    {% endif %}
+  </section>
+
+  <section class="disclaimer" role="note">
+    <strong>Medical disclaimer:</strong>
+    This app is a reminder aid. It does not provide medical advice.
+    Always follow your doctor's instructions.
+  </section>
+{% endblock %}

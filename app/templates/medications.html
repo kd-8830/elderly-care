@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.name }} · Medications{% endblock %}
+{% block content %}
+  <section class="page-head">
+    <div>
+      <h1>{{ profile.name }} — Medications</h1>
+      <p class="muted">Your role: <strong>{{ membership.role }}</strong></p>
+    </div>
+    <div class="head-actions">
+      <a class="btn btn-secondary" href="{{ url_for('medications.today', profile_id=profile.id) }}">Today's doses</a>
+      <a class="btn btn-secondary" href="{{ url_for('profiles.dashboard') }}">Back to dashboard</a>
+    </div>
+  </section>
+
+  {% if can_edit %}
+  <section class="card">
+    <h2>Add a medication</h2>
+    <form method="post" action="{{ url_for('medications.create', profile_id=profile.id) }}" class="form">
+      <label>Name</label>
+      <input name="name" type="text" required placeholder="e.g. Metformin">
+
+      <label>Dosage</label>
+      <input name="dosage" type="text" required placeholder="e.g. 500 mg">
+
+      <label>Frequency</label>
+      <input name="frequency" type="text" value="daily">
+
+      <label>Times (comma separated, HH:MM 24h)</label>
+      <input name="times" type="text" required placeholder="08:00, 20:00">
+
+      <label>Notes (optional)</label>
+      <input name="notes" type="text" placeholder="Take with food">
+
+      <button type="submit" class="btn btn-primary">Add medication</button>
+    </form>
+  </section>
+  {% endif %}
+
+  <section class="card">
+    <h2>Current medications</h2>
+    {% if meds %}
+      <ul class="med-list">
+        {% for med in meds %}
+          <li class="med-item">
+            <div class="med-main">
+              <div class="med-name">{{ med.name }} <span class="muted">· {{ med.dosage }}</span></div>
+              <div class="muted">{{ med.frequency }} · {{ med.times|join(", ") }}</div>
+              {% if med.notes %}<div class="muted">Notes: {{ med.notes }}</div>{% endif %}
+            </div>
+            {% if can_edit %}
+            <div class="med-actions">
+              <details>
+                <summary class="btn btn-secondary">Edit</summary>
+                <form method="post" action="{{ url_for('medications.edit', med_id=med.id) }}" class="form edit-form">
+                  <label>Name</label>
+                  <input name="name" value="{{ med.name }}" required>
+                  <label>Dosage</label>
+                  <input name="dosage" value="{{ med.dosage }}" required>
+                  <label>Frequency</label>
+                  <input name="frequency" value="{{ med.frequency }}">
+                  <label>Times</label>
+                  <input name="times" value="{{ med.times|join(', ') }}" required>
+                  <label>Notes</label>
+                  <input name="notes" value="{{ med.notes or '' }}">
+                  <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+              </details>
+              <form method="post" action="{{ url_for('medications.delete', med_id=med.id) }}"
+                    onsubmit="return confirm('Delete {{ med.name }}?');">
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </form>
+            </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No medications yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="disclaimer" role="note">
+    <strong>Medical disclaimer:</strong>
+    This app is a reminder aid. It does not provide medical advice.
+    Always follow your doctor's instructions.
+  </section>
+{% endblock %}

@@ -1,0 +1,219 @@
+:root {
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --text: #101828;
+  --muted: #475467;
+  --primary: #1d4ed8;
+  --primary-dark: #1e40af;
+  --danger: #b42318;
+  --success: #067647;
+  --border: #d0d5dd;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+a { color: var(--primary); }
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.inline-form { display: inline; margin: 0; }
+
+.container {
+  max-width: 880px;
+  margin: 2rem auto;
+  padding: 0 1.25rem 3rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth-card { max-width: 520px; margin: 0 auto; }
+
+.form { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.form label { font-weight: 600; margin-top: 0.8rem; }
+
+.form input,
+.form select {
+  font-size: 1.05rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  width: 100%;
+}
+
+.btn {
+  font-size: 1.05rem;
+  padding: 0.8rem 1.3rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  margin-top: 1.2rem;
+}
+
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+  margin-top: 0;
+  padding: 0.5rem 1rem;
+}
+
+.muted { color: var(--muted); }
+
+.flash-area { margin-bottom: 1.2rem; }
+
+.flash {
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.flash-error { border-color: var(--danger); color: var(--danger); }
+.flash-success { border-color: var(--success); color: var(--success); }
+
+.profile-list { list-style: none; margin: 0; padding: 0; }
+
+.profile-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-item:last-child { border-bottom: none; }
+
+.profile-name { font-weight: 700; font-size: 1.15rem; }
+
+.badge {
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: var(--primary-dark);
+}
+
+.badge-owner { background: #e0f2fe; color: #075985; }
+.badge-caretaker { background: #dcfae6; color: var(--success); }
+.badge-family { background: #fef0c7; color: #92400e; }
+
+.disclaimer {
+  background: #fffaeb;
+  border: 1px solid #fedf89;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  color: #7a2e0e;
+}
+
+
+/* ---------------- Stage 2 ---------------- */
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.head-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.profile-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-danger {
+  background: #fff;
+  color: var(--danger);
+  border-color: var(--danger);
+  padding: 0.5rem 1rem;
+}
+
+.btn-danger:hover { background: #fef3f2; }
+
+.med-list, .dose-list { list-style: none; margin: 0; padding: 0; }
+
+.med-item, .dose-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.med-item:last-child, .dose-item:last-child { border-bottom: none; }
+
+.med-name, .dose-name { font-weight: 700; font-size: 1.1rem; }
+
+.med-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.med-actions details summary { cursor: pointer; }
+
+.edit-form {
+  margin-top: 0.8rem;
+  padding: 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+
+.btn-take {
+  font-size: 1.15rem;
+  padding: 0.9rem 1.5rem;
+  margin-top: 0;
+}
+
+.dose-taken { background: #f0fdf4; }
+.dose-missed { background: #fef3f2; }
+.dose-pending { background: transparent; }
