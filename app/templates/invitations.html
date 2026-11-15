@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Invitations · {{ profile.name }}{% endblock %}
+{% block content %}
+  <section class="page-head">
+    <div><h1>Invitations — {{ profile.name }}</h1></div>
+    <a class="btn btn-secondary" href="{{ url_for('profiles.dashboard') }}">Dashboard</a>
+  </section>
+
+  {% if can_generate %}
+  <section class="card">
+    <h2>Generate an invite</h2>
+    <form method="post" action="{{ url_for('invitations.create', profile_id=profile.id) }}" class="form">
+      <label>Role</label>
+      <select name="role">
+        <option value="caretaker">Caretaker</option>
+        <option value="family">Family (view only)</option>
+      </select>
+      <label>Expires in (hours)</label>
+      <input name="expires_hours" type="number" min="1" max="168" value="72">
+      <button type="submit" class="btn btn-primary">Generate code</button>
+    </form>
+  </section>
+  {% endif %}
+
+  <section class="card">
+    <h2>Existing invitations</h2>
+    {% if invites %}
+      <ul class="invite-list">
+        {% for inv in invites %}
+          <li class="invite-item">
+            <div>
+              <span class="invite-code">{{ inv.code }}</span>
+              <span class="badge badge-{{ inv.role }}">{{ inv.role }}</span>
+              <div class="muted">
+                {% if inv.consumed_at %}used{% elif inv.expires_at < now_dt %}expired{% else %}expires{% endif %}
+                {{ (inv.consumed_at or inv.expires_at).strftime('%Y-%m-%d %H:%M') }}
+              </div>
+            </div>
+            {% if can_generate and inv.consumed_at is none and inv.expires_at > now_dt %}
+              <form method="post" action="{{ url_for('invitations.revoke', invite_id=inv.id) }}"
+                    onsubmit="return confirm('Revoke {{ inv.code }}?');">
+                <button type="submit" class="btn btn-danger">Revoke</button>
+              </form>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No invitations yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}

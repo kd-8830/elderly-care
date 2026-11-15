@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Doctor visit report — {{ profile.name }}{% endblock %}
+{% block content %}
+  <section class="page-head">
+    <div>
+      <h1>Doctor visit report</h1>
+      <p class="muted">{{ profile.name }} · generated {{ now.strftime('%Y-%m-%d %H:%M') }} UTC</p>
+    </div>
+    <a class="btn btn-secondary" href="#" onclick="window.print(); return false;">Print</a>
+  </section>
+
+  <section class="card report-card">
+    <h2>Adherence (last 30 days)</h2>
+    <p><strong>{{ stats.percentage }}%</strong> ({{
+      stats.taken }}/{{ stats.total }} doses taken, {{
+      stats.missed }} missed, {{ stats.pending }} pending).</p>
+
+    <h2>Missed doses</h2>
+    {% if missed %}
+      <ul>
+        {% for d in missed[:20] %}
+          <li>{{ d.scheduled_at.strftime('%Y-%m-%d %H:%M') }} UTC —
+            {{ d.medication.name }} ({{ d.medication.dosage }})</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>None. Good adherence.</p>
+    {% endif %}
+
+    <h2>Symptoms logged</h2>
+    {% if symptoms %}
+      <ul>
+        {% for s in symptoms %}
+          <li>{{ s.created_at.strftime('%Y-%m-%d') }} — {{ s.symptom }}
+            ({{ s.severity }}){% if s.notes %}: {{ s.notes }}{% endif %}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No symptoms logged.</p>
+    {% endif %}
+
+    <h2>Upcoming appointments</h2>
+    {% if upcoming %}
+      <ul>
+        {% for a in upcoming %}
+          <li>{{ a.scheduled_at.strftime('%Y-%m-%d %H:%M') }} UTC —
+            {{ a.doctor.name if a.doctor else 'Doctor' }} @ {{ a.location or 'TBD' }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>None scheduled.</p>
+    {% endif %}
+
+    <hr>
+    <p class="muted small">
+      <strong>Data basis:</strong> this report is generated from dose logs,
+      symptom entries, and appointment records stored in ElderCare between
+      {{ start.strftime('%Y-%m-%d') }} and {{ now.strftime('%Y-%m-%d') }}.
+    </p>
+    <p class="muted small">
+      This app is a reminder aid. It does not provide medical advice.
+      Always follow your doctor's instructions.
+    </p>
+  </section>
+{% endblock %}

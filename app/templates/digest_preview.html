@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Digest preview · {{ profile.name }}{% endblock %}
+{% block content %}
+  <section class="page-head">
+    <div><h1>Digest preview — {{ profile.name }}</h1></div>
+    <a class="btn btn-secondary" href="{{ url_for('profiles.dashboard') }}">Dashboard</a>
+  </section>
+  <section class="card digest-card">
+    {{ html | safe }}
+  </section>
+{% endblock %}

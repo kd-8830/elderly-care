@@ -14,11 +14,17 @@ def create_app(config_object=Config) -> Flask:
     from .routes.profiles import profiles_bp
     from .routes.medications import medications_bp
     from .routes.cron import cron_bp
+    from .routes.invitations import invitations_bp
+    from .routes.appointments import appointments_bp
+    from .routes.digests import digests_bp
+    from .routes.admin import admin_bp
+    from .routes.reports import reports_bp
 
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(profiles_bp)
-    app.register_blueprint(medications_bp)
-    app.register_blueprint(cron_bp)
+    for bp in (
+        auth_bp, profiles_bp, medications_bp, cron_bp, invitations_bp,
+        appointments_bp, digests_bp, admin_bp, reports_bp,
+    ):
+        app.register_blueprint(bp)
 
     if app.config.get("AUTO_CREATE_TABLES"):
         with app.app_context():

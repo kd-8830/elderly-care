@@ -4,9 +4,10 @@
   <section class="page-head">
     <div>
       <h1>Today's doses</h1>
-      <p class="muted">{{ profile.name }} · your role: <strong>{{ membership.role }}</strong></p>
+      <p class="muted">{{ profile.name }}</p>
     </div>
     <div class="head-actions">
+      <button type="button" class="btn btn-secondary" onclick="readSchedule()">🔊 Read aloud</button>
       <a class="btn btn-secondary" href="{{ url_for('medications.list_for_profile', profile_id=profile.id) }}">Medications</a>
       <a class="btn btn-secondary" href="{{ url_for('profiles.dashboard') }}">Dashboard</a>
     </div>
@@ -14,27 +15,36 @@
 
   <section class="card">
     {% if doses %}
-      <ul class="dose-list">
+      <ul class="dose-list big-doses">
         {% for dose in doses %}
           <li class="dose-item dose-{{ dose.status }}">
             <div>
-              <div class="dose-name">{{ dose.medication.name }} <span class="muted">· {{ dose.medication.dosage }}</span></div>
-              <div class="muted">
-                Scheduled {{ dose.scheduled_at.strftime("%H:%M") }} ·
-                status: <strong>{{ dose.status }}</strong>
-                {% if dose.taken_at %} · taken {{ dose.taken_at.strftime("%H:%M") }}{% endif %}
+              <div class="dose-name dose-name-big">
+                {{ dose.medication.name }} · {{ dose.medication.dosage }}
+              </div>
+              <div class="muted dose-time-big">
+                Scheduled {{ dose.scheduled_at.strftime('%H:%M') }} ·
+                <strong>{{ dose.status }}</strong>
+                {% if dose.taken_at %} · taken {{ dose.taken_at.strftime('%H:%M') }}{% endif %}
               </div>
             </div>
             {% if can_mark and dose.status == "pending" %}
               <form method="post" action="{{ url_for('medications.mark_taken', dose_id=dose.id) }}">
-                <button type="submit" class="btn btn-primary btn-take">I took it</button>
+                <button type="submit" class="btn btn-take">I took it</button>
               </form>
             {% endif %}
           </li>
         {% endfor %}
       </ul>
+      <div id="schedule-text" class="hidden">
+        {% for dose in doses %}
+          {{ dose.medication.name }}, {{ dose.medication.dosage }},
+          scheduled at {{ dose.scheduled_at.strftime('%H:%M') }}.
+          Status: {{ dose.status }}.
+        {% endfor %}
+      </div>
     {% else %}
-      <p>No doses scheduled for today. Add a medication to see them here.</p>
+      <p>No doses scheduled for today.</p>
     {% endif %}
   </section>
 

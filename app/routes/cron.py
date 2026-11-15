@@ -3,6 +3,8 @@ from functools import wraps
 from flask import Blueprint, current_app, jsonify, request
 
 from ..services.adherence import mark_missed_doses
+from ..services.digests import run_digests
+from ..services.reminders import run_reminders
 
 cron_bp = Blueprint("cron", __name__, url_prefix="/api/cron")
 
@@ -25,3 +27,17 @@ def require_cron_secret(view):
 def adherence():
     changed = mark_missed_doses()
     return jsonify({"ok": True, "marked_missed": changed}), 200
+
+
+@cron_bp.route("/reminders", methods=["GET", "POST"])
+@require_cron_secret
+def reminders():
+    stats = run_reminders()
+    return jsonify({"ok": True, **stats}), 200
+
+
+@cron_bp.route("/digests", methods=["GET", "POST"])
+@require_cron_secret
+def digests():
+    stats = run_digests()
+    return jsonify({"ok": True, **stats}), 200

@@ -243,3 +243,67 @@ a { color: var(--primary); }
 .adherence-bad  { border-color: var(--danger); color: var(--danger); }
 
 .streak-pill { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
+
+
+
+
+
+/* ---------------- Stages 4–10 ---------------- */
+
+/* Elderly-friendly baseline (Stage 8) */
+body { font-size: 20px; line-height: 1.6; }
+h1 { font-size: 1.9rem; }
+h2 { font-size: 1.4rem; }
+.muted { color: #3a4452; }
+
+.btn-take {
+  font-size: 1.35rem;
+  padding: 1.1rem 1.8rem;
+  border-radius: 14px;
+  margin-top: 0;
+  min-width: 180px;
+}
+
+.dose-name-big { font-size: 1.35rem; font-weight: 700; }
+.dose-time-big { font-size: 1.1rem; }
+
+.big-doses .dose-item {
+  padding: 1.2rem 0;
+  align-items: center;
+}
+
+.badge-warn { background: #fef3c7; color: #92400e; }
+
+.med-pending_approval { background: #fffbeb; }
+
+.safety-card { background: #fffaeb; border-color: #fedf89; }
+.flag { padding: 0.3rem 0.6rem; border-radius: 8px; }
+.flag-warning { background: #fef3c7; color: #92400e; padding: 0.2rem 0.5rem; }
+
+.invite-list { list-style: none; margin: 0; padding: 0; }
+.invite-item {
+  display: flex; justify-content: space-between; gap: 1rem;
+  padding: 0.9rem 0; border-bottom: 1px solid var(--border);
+  align-items: center; flex-wrap: wrap;
+}
+.invite-item:last-child { border-bottom: none; }
+.invite-code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 1.35rem; font-weight: 700;
+  letter-spacing: 0.15em; padding: 0.15rem 0.5rem;
+  background: #eef2ff; border-radius: 6px;
+  margin-right: 0.5rem;
+}
+
+.digest-card h1 { font-size: 1.5rem; }
+.digest-card h2 { font-size: 1.2rem; }
+
+.report-card { page-break-inside: avoid; }
+.small { font-size: 0.95rem; }
+.hidden { display: none; }
+
+@media print {
+  .site-header, .head-actions, .page-head .head-actions, .disclaimer { display: none; }
+  body { background: #fff; font-size: 14px; }
+  .card { box-shadow: none; border: none; }
+}

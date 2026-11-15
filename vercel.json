@@ -9,5 +9,10 @@
   ],
   "routes": [
     { "src": "/(.*)", "dest": "api/index.py" }
+  ],
+  "crons": [
+    { "path": "/api/cron/adherence", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/reminders", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/digests",   "schedule": "0 2,3 * * *" }
   ]
 }

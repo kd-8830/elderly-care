@@ -6,6 +6,9 @@
       <h1>Hello, {{ user.name }}</h1>
       <p class="muted">You are registered as: <strong>{{ user.role }}</strong></p>
     </div>
+    <div class="head-actions">
+      <a class="btn btn-secondary" href="{{ url_for('invitations.join') }}">Join with code</a>
+    </div>
   </section>
 
   <section class="card">
@@ -16,7 +19,7 @@
           <li class="profile-item">
             <div>
               <div class="profile-name">{{ profile.name }}</div>
-              <div class="muted">Your role on this profile: {{ membership.role }}</div>
+              <div class="muted">Role: {{ membership.role }}</div>
               <div class="adherence-row">
                 <span class="adherence-pill adherence-{{ 'good' if stats.percentage >= 80 else ('warn' if stats.percentage >= 50 else 'bad') }}">
                   Last {{ stats.window_days }} days: <strong>{{ stats.percentage }}%</strong>
@@ -29,12 +32,19 @@
               <span class="badge badge-{{ membership.role }}">{{ membership.role }}</span>
               <a class="btn btn-secondary" href="{{ url_for('medications.today', profile_id=profile.id) }}">Today</a>
               <a class="btn btn-secondary" href="{{ url_for('medications.list_for_profile', profile_id=profile.id) }}">Medications</a>
+              <a class="btn btn-secondary" href="{{ url_for('appointments.list_for_profile', profile_id=profile.id) }}">Appointments</a>
+              <a class="btn btn-secondary" href="{{ url_for('admin.audit', profile_id=profile.id) }}">Audit</a>
+              <a class="btn btn-secondary" href="{{ url_for('admin.symptoms', profile_id=profile.id) }}">Symptoms</a>
+              <a class="btn btn-secondary" href="{{ url_for('reports.doctor_visit', profile_id=profile.id) }}">Doctor report</a>
+              {% if membership.role in ['owner', 'caretaker'] %}
+                <a class="btn btn-secondary" href="{{ url_for('invitations.list_for_profile', profile_id=profile.id) }}">Invitations</a>
+              {% endif %}
             </div>
           </li>
         {% endfor %}
       </ul>
     {% else %}
-      <p>You do not belong to any care profile yet.</p>
+      <p>You do not belong to any care profile yet. If you received an invite code, click "Join with code" above.</p>
     {% endif %}
   </section>
 

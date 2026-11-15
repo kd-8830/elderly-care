@@ -1,5 +1,3 @@
-"""Seed demo data. Run `python seed.py` for baseline, or `python seed.py --backfill`
-to also create some past missed doses so adherence < 100% right away."""
 import sys
 from datetime import datetime, timedelta, timezone
 
@@ -8,7 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app import create_app  # noqa: E402
-from app.models import DoseLog, Medication, Membership, Profile, User, db  # noqa: E402
+from app.models import (  # noqa: E402
+    Appointment, DoseLog, Doctor, Medication, Membership, Profile,
+    SymptomLog, User, db,
+)
 from app.services.doses import generate_doses_for_medication  # noqa: E402
 
 DEMO_ACCOUNTS = [
@@ -18,8 +19,7 @@ DEMO_ACCOUNTS = [
 ]
 
 
-def backfill_history(med: Medication, days: int = 5):
-    """Create past dose logs, mixing taken and missed, for adherence testing."""
+def backfill_history(med, days=5):
     now = datetime.now(timezone.utc)
     created = 0
     for offset in range(days, 0, -1):
@@ -34,17 +34,12 @@ def backfill_history(med: Medication, days: int = 5):
             )
             if exists:
                 continue
-            # Alternate taken/missed per time slot so adherence sits around 70-80%.
             status = "taken" if (offset + idx) % 3 != 0 else "missed"
             taken_at = scheduled + timedelta(minutes=10) if status == "taken" else None
-            db.session.add(
-                DoseLog(
-                    medication_id=med.id,
-                    scheduled_at=scheduled,
-                    status=status,
-                    taken_at=taken_at,
-                )
-            )
+            db.session.add(DoseLog(
+                medication_id=med.id, scheduled_at=scheduled,
+                status=status, taken_at=taken_at,
+            ))
             created += 1
     if created:
         db.session.commit()
@@ -53,12 +48,11 @@ def backfill_history(med: Medication, days: int = 5):
 
 def main():
     do_backfill = "--backfill" in sys.argv
-
     app = create_app()
     with app.app_context():
         db.create_all()
 
-        meera_profile = None
+        profiles = {}
         for spec in DEMO_ACCOUNTS:
             user = User.query.filter_by(email=spec["email"]).first()
             if user is None:
@@ -71,44 +65,67 @@ def main():
                 )
                 db.session.add(profile)
                 db.session.flush()
-                db.session.add(
-                    Membership(user_id=user.id, profile_id=profile.id, role="owner")
-                )
+                db.session.add(Membership(
+                    user_id=user.id, profile_id=profile.id, role="owner",
+                ))
                 print(f"Created {spec['email']} (passcode {spec['passcode']})")
-                if spec["email"] == "meera@example.com":
-                    meera_profile = profile
+                profiles[spec["email"]] = (user, profile)
             else:
+                profile = Profile.query.filter_by(owner_user_id=user.id).first()
+                profiles[spec["email"]] = (user, profile)
                 print(f"Exists  {spec['email']}")
-                if spec["email"] == "meera@example.com":
-                    meera_profile = Profile.query.filter_by(
-                        owner_user_id=user.id
-                    ).first()
         db.session.commit()
 
-        if meera_profile:
-            existing = Medication.query.filter_by(
-                profile_id=meera_profile.id, name="Metformin"
-            ).first()
-            if existing is None:
-                med = Medication(
-                    profile_id=meera_profile.id,
-                    name="Metformin",
-                    dosage="500 mg",
-                    frequency="daily",
-                    times=["08:00", "20:00"],
-                    notes="Take with food",
-                )
-                db.session.add(med)
-                db.session.commit()
-                created = generate_doses_for_medication(med)
-                print(f"Seeded Metformin for Meera ({created} future doses).")
-            else:
-                med = existing
-                print("Metformin already exists for Meera.")
+        meera_user, meera_profile = profiles["meera@example.com"]
 
-            if do_backfill:
-                added = backfill_history(med, days=5)
-                print(f"Backfilled {added} historical doses (mix of taken/missed).")
+        # Medications on Meera's profile
+        metformin = Medication.query.filter_by(
+            profile_id=meera_profile.id, name="Metformin"
+        ).first()
+        if metformin is None:
+            metformin = Medication(
+                profile_id=meera_profile.id, name="Metformin", dosage="500 mg",
+                frequency="daily", times=["08:00", "20:00"],
+                notes="Take with food", drug_class="biguanide",
+                pill_count=20, refill_threshold=10,
+            )
+            db.session.add(metformin)
+            db.session.commit()
+            generate_doses_for_medication(metformin)
+            print("Seeded Metformin for Meera.")
+
+        if do_backfill:
+            n = backfill_history(metformin, days=5)
+            print(f"Backfilled {n} historical doses.")
+
+        # Doctor + appointment
+        doctor = Doctor.query.filter_by(profile_id=meera_profile.id).first()
+        if doctor is None:
+            doctor = Doctor(
+                profile_id=meera_profile.id, name="Dr. Rao",
+                specialty="Cardiologist", phone="+91 98765 43210",
+            )
+            db.session.add(doctor)
+            db.session.commit()
+
+        if Appointment.query.filter_by(profile_id=meera_profile.id).first() is None:
+            appt_time = datetime.now(timezone.utc) + timedelta(days=2, hours=3)
+            db.session.add(Appointment(
+                profile_id=meera_profile.id, doctor_id=doctor.id,
+                scheduled_at=appt_time, location="Apollo Clinic, Room 4",
+                notes="Bring recent BP readings",
+            ))
+            db.session.commit()
+            print(f"Seeded appointment with Dr. Rao on {appt_time.isoformat()}.")
+
+        if SymptomLog.query.filter_by(profile_id=meera_profile.id).first() is None:
+            db.session.add(SymptomLog(
+                profile_id=meera_profile.id, logged_by_user_id=meera_user.id,
+                symptom="Mild dizziness", severity="mild",
+                notes="After morning walk",
+            ))
+            db.session.commit()
+            print("Seeded symptom log for Meera.")
 
         print("Seed complete.")
 

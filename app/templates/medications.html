@@ -7,30 +7,43 @@
       <p class="muted">Your role: <strong>{{ membership.role }}</strong></p>
     </div>
     <div class="head-actions">
-      <a class="btn btn-secondary" href="{{ url_for('medications.today', profile_id=profile.id) }}">Today's doses</a>
-      <a class="btn btn-secondary" href="{{ url_for('profiles.dashboard') }}">Back to dashboard</a>
+      <a class="btn btn-secondary" href="{{ url_for('medications.today', profile_id=profile.id) }}">Today</a>
+      <a class="btn btn-secondary" href="{{ url_for('profiles.dashboard') }}">Dashboard</a>
     </div>
   </section>
+
+  {% if flags %}
+  <section class="card safety-card">
+    <h2>⚠️ Safety notes</h2>
+    <ul>
+      {% for flag in flags %}
+        <li class="flag flag-{{ flag.severity }}">{{ flag.message }}</li>
+      {% endfor %}
+    </ul>
+    <p class="muted">These are rule-based flags, not medical advice.</p>
+  </section>
+  {% endif %}
 
   {% if can_edit %}
   <section class="card">
     <h2>Add a medication</h2>
     <form method="post" action="{{ url_for('medications.create', profile_id=profile.id) }}" class="form">
       <label>Name</label>
-      <input name="name" type="text" required placeholder="e.g. Metformin">
-
+      <input name="name" required placeholder="Metformin">
       <label>Dosage</label>
-      <input name="dosage" type="text" required placeholder="e.g. 500 mg">
-
+      <input name="dosage" required placeholder="500 mg">
       <label>Frequency</label>
-      <input name="frequency" type="text" value="daily">
-
-      <label>Times (comma separated, HH:MM 24h)</label>
-      <input name="times" type="text" required placeholder="08:00, 20:00">
-
-      <label>Notes (optional)</label>
-      <input name="notes" type="text" placeholder="Take with food">
-
+      <input name="frequency" value="daily">
+      <label>Times (HH:MM, comma separated)</label>
+      <input name="times" required placeholder="08:00, 20:00">
+      <label>Drug class (optional, for safety checks)</label>
+      <input name="drug_class" placeholder="e.g. biguanide">
+      <label>Pill count (optional, for refill tracking)</label>
+      <input name="pill_count" type="number" min="0">
+      <label>Refill threshold (optional)</label>
+      <input name="refill_threshold" type="number" min="0">
+      <label>Notes</label>
+      <input name="notes">
       <button type="submit" class="btn btn-primary">Add medication</button>
     </form>
   </section>
@@ -41,27 +54,43 @@
     {% if meds %}
       <ul class="med-list">
         {% for med in meds %}
-          <li class="med-item">
+          <li class="med-item med-{{ med.approval_status }}">
             <div class="med-main">
-              <div class="med-name">{{ med.name }} <span class="muted">· {{ med.dosage }}</span></div>
+              <div class="med-name">
+                {{ med.name }} <span class="muted">· {{ med.dosage }}</span>
+                {% if med.approval_status == 'pending_approval' %}
+                  <span class="badge badge-warn">pending approval</span>
+                {% endif %}
+              </div>
               <div class="muted">{{ med.frequency }} · {{ med.times|join(", ") }}</div>
               {% if med.notes %}<div class="muted">Notes: {{ med.notes }}</div>{% endif %}
+              {% if med.pill_count is not none %}
+                <div class="muted">
+                  Pills left: {{ med.pill_count }}
+                  {% if med.refill_threshold is not none and med.pill_count <= med.refill_threshold %}
+                    <span class="flag flag-warning">⚠ Refill needed</span>
+                  {% endif %}
+                </div>
+              {% endif %}
             </div>
             {% if can_edit %}
             <div class="med-actions">
+              {% if med.approval_status == 'pending_approval' and membership.role == 'owner' %}
+                <form method="post" action="{{ url_for('medications.approve', med_id=med.id) }}">
+                  <button type="submit" class="btn btn-primary">Approve</button>
+                </form>
+              {% endif %}
               <details>
                 <summary class="btn btn-secondary">Edit</summary>
                 <form method="post" action="{{ url_for('medications.edit', med_id=med.id) }}" class="form edit-form">
-                  <label>Name</label>
-                  <input name="name" value="{{ med.name }}" required>
-                  <label>Dosage</label>
-                  <input name="dosage" value="{{ med.dosage }}" required>
-                  <label>Frequency</label>
-                  <input name="frequency" value="{{ med.frequency }}">
-                  <label>Times</label>
-                  <input name="times" value="{{ med.times|join(', ') }}" required>
-                  <label>Notes</label>
-                  <input name="notes" value="{{ med.notes or '' }}">
+                  <label>Name</label><input name="name" value="{{ med.name }}" required>
+                  <label>Dosage</label><input name="dosage" value="{{ med.dosage }}" required>
+                  <label>Frequency</label><input name="frequency" value="{{ med.frequency }}">
+                  <label>Times</label><input name="times" value="{{ med.times|join(', ') }}" required>
+                  <label>Drug class</label><input name="drug_class" value="{{ med.drug_class or '' }}">
+                  <label>Pill count</label><input name="pill_count" type="number" value="{{ med.pill_count if med.pill_count is not none else '' }}">
+                  <label>Refill threshold</label><input name="refill_threshold" type="number" value="{{ med.refill_threshold if med.refill_threshold is not none else '' }}">
+                  <label>Notes</label><input name="notes" value="{{ med.notes or '' }}">
                   <button type="submit" class="btn btn-primary">Save</button>
                 </form>
               </details>

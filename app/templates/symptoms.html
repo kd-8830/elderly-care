@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Symptoms — {{ profile.name }}{% endblock %}
+{% block content %}
+  <section class="page-head">
+    <div><h1>Symptoms — {{ profile.name }}</h1></div>
+    <a class="btn btn-secondary" href="{{ url_for('profiles.dashboard') }}">Dashboard</a>
+  </section>
+
+  {% if can_edit %}
+  <section class="card">
+    <h2>Log a symptom</h2>
+    <form method="post" class="form">
+      <label>Symptom</label><input name="symptom" required>
+      <label>Severity</label>
+      <select name="severity">
+        <option value="mild">Mild</option>
+        <option value="moderate">Moderate</option>
+        <option value="severe">Severe</option>
+      </select>
+      <label>Notes</label><input name="notes">
+      <button type="submit" class="btn btn-primary">Log</button>
+    </form>
+  </section>
+  {% endif %}
+
+  <section class="card">
+    <h2>Recent symptoms</h2>
+    {% if entries %}
+      <ul class="med-list">
+        {% for e in entries %}
+          <li class="med-item">
+            <div>
+              <div class="med-name">{{ e.symptom }} <span class="muted">· {{ e.severity }}</span></div>
+              <div class="muted">{{ e.notes or '' }}</div>
+            </div>
+            <div class="muted">{{ e.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No symptoms logged.</p>
+    {% endif %}
+  </section>
+{% endblock %}

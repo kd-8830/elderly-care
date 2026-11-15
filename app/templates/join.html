@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Join with invite code{% endblock %}
+{% block content %}
+  <section class="card auth-card">
+    <h1>Join a care profile</h1>
+    <p class="muted">Ask the profile owner or caretaker for a 6-character code.</p>
+    <form method="post" action="{{ url_for('invitations.join') }}" class="form">
+      <label>Invite code</label>
+      <input name="code" required maxlength="12" value="{{ code or '' }}"
+             style="text-transform: uppercase; letter-spacing: 0.2em; font-size: 1.4rem;">
+      <button type="submit" class="btn btn-primary">Join</button>
+    </form>
+  </section>
+{% endblock %}
